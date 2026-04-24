@@ -1,13 +1,10 @@
 import { useState } from "react";
-import {
-  useNodesState,
-  useEdgesState,
-} from "reactflow";
+import { useNodesState, useEdgesState } from "reactflow";
 
 export const useWorkflow = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [selectedNode, setSelectedNode] = useState(null);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
   return {
     nodes,
@@ -16,7 +13,7 @@ export const useWorkflow = () => {
     setEdges,
     onNodesChange,
     onEdgesChange,
-    selectedNode,
-    setSelectedNode,
+    selectedNodeId,
+    setSelectedNodeId,
   };
 };

@@ -12,12 +12,25 @@ function App() {
     setEdges,
     onNodesChange,
     onEdgesChange,
-    selectedNode,
-    setSelectedNode,
+    selectedNodeId,
+    setSelectedNodeId,
   } = useWorkflow();
 
+  const selectedNode =
+    nodes.find((n) => n.id === selectedNodeId) || null;
+
+  const updateNode = (updatedNode: any) => {
+    setNodes((nds: any[]) =>
+      nds.map((n) =>
+        n.id === updatedNode.id
+          ? { ...n, data: updatedNode.data }
+          : n
+      )
+    );
+  };
+
   return (
-    <div style={{ display: "flex" }}>
+    <div style={{ display: "flex", height: "100vh" }}>
       <Sidebar />
 
       <WorkflowCanvas
@@ -27,13 +40,18 @@ function App() {
         setEdges={setEdges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        setSelectedNode={setSelectedNode}
+        setSelectedNodeId={setSelectedNodeId}
       />
 
-      <NodeFormPanel node={selectedNode} updateNode={() => {}} />
+    <NodeFormPanel
+      node={selectedNode}
+      updateNode={updateNode}
+      onPanelClose={() => setSelectedNodeId(null)}
+    />
 
       <SimulatorPanel nodes={nodes} edges={edges} />
     </div>
   );
 }
+
 export default App;

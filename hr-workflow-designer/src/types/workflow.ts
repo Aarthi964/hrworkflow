@@ -14,6 +14,8 @@ export interface WorkflowNodeData {
   assignee?: string;
   dueDate?: string;
   role?: string;
+
+  [key: string]: any;
 }
 
 export type WorkflowNode = Node<WorkflowNodeData>;

@@ -2,8 +2,10 @@ import { NODE_TYPES } from "../../utils/constants";
 
 const Sidebar = () => {
 
-  const onDragStart = (event: React.DragEvent, nodeType: string) => {
-    event.dataTransfer.setData("application/reactflow", nodeType);
+  const onDragStart = (event: React.DragEvent, type: string) => {
+    event.dataTransfer.setData("application/reactflow", type);
+    event.dataTransfer.setData("text/plain", type); // ✅ fallback
+    event.dataTransfer.effectAllowed = "move";
   };
 
   return (

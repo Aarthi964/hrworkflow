@@ -1,34 +1,21 @@
 import { simulateWorkflow } from "../../services/api";
 import { validateWorkflow } from "../../utils/validators";
-import type { WorkflowNode } from "../../types/workflow";
-import type { WorkflowEdge } from "../../types/workflow";
 
-interface Props {
-  nodes: WorkflowNode[];
-  edges: WorkflowEdge[];
-}
+const SimulatorPanel = ({ nodes, edges }: any) => {
 
-const SimulatorPanel = ({ nodes, edges }: Props) => {
-
-  const runSimulation = async () => {
-
+  const run = async () => {
     const errors = validateWorkflow(nodes, edges);
 
-    if (errors.length > 0) {
-      alert("Validation Errors:\n" + errors.join("\n"));
+    if (errors.length) {
+      alert(errors.join("\n"));
       return;
     }
 
-    const res = await simulateWorkflow({ nodes, edges });
-
+    const res = await simulateWorkflow({ nodes });
     alert(res.steps.map((s: any) => s.message).join("\n"));
   };
 
-  return (
-    <button onClick={runSimulation}>
-      Run Workflow
-    </button>
-  );
+  return <button onClick={run}>Run</button>;
 };
 
 export default SimulatorPanel;

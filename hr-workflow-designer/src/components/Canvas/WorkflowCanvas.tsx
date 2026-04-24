@@ -1,91 +1,86 @@
-import React, { useRef, useCallback } from "react";
+import React, { useRef, useState } from "react";
 import ReactFlow, {
   addEdge,
   Background,
   Controls
 } from "reactflow";
-import "reactflow/dist/style.css";
-import type {Connection,
-  ReactFlowInstance,} from "reactflow";
+import type { Connection, ReactFlowInstance } from "reactflow";
 import type { WorkflowNode, WorkflowEdge } from "../../types/workflow";
+
+import "reactflow/dist/style.css"; // ✅ IMPORTANT
 
 interface Props {
   nodes: WorkflowNode[];
   edges: WorkflowEdge[];
-  onNodesChange: any;
-  onEdgesChange: any;
   setNodes: any;
   setEdges: any;
-  setSelectedNode: (node: WorkflowNode) => void;
+  onNodesChange: any;
+  onEdgesChange: any;
+  setSelectedNodeId: (id: string) => void;
 }
 
 const WorkflowCanvas = ({
   nodes,
   edges,
-  onNodesChange,
-  onEdgesChange,
   setNodes,
   setEdges,
-  setSelectedNode,
+  onNodesChange,
+  onEdgesChange,
+  setSelectedNodeId,
 }: Props) => {
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] =
-    React.useState<ReactFlowInstance | null>(null);
+    useState<ReactFlowInstance | null>(null);
 
-  // connect edges
-  const onConnect = useCallback(
-    (params: Connection) =>
-      setEdges((eds: WorkflowEdge[]) => addEdge(params, eds)),
-    []
-  );
-
-  // allow drop
-  const onDragOver = (event: React.DragEvent) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-  };
-
-  // DROP LOGIC (IMPORTANT 🔥)
   const onDrop = (event: React.DragEvent) => {
     event.preventDefault();
 
-    if (!reactFlowInstance || !wrapperRef.current) return;
+    console.log("DROP WORKING");
+
+    if (!reactFlowInstance) return;
 
     const type = event.dataTransfer.getData("application/reactflow");
 
-    const bounds = wrapperRef.current.getBoundingClientRect();
+    console.log("TYPE:", type);
 
-    const position = reactFlowInstance.project({
-      x: event.clientX - bounds.left,
-      y: event.clientY - bounds.top,
+    if (!type) return;
+
+    const position = reactFlowInstance.screenToFlowPosition({
+      x: event.clientX,
+      y: event.clientY,
     });
 
     const newNode: WorkflowNode = {
       id: `${Date.now()}`,
       type,
       position,
-      data: { label: `${type}` },
+      data: {
+        label: type.toUpperCase(), // ✅ default visible text
+      },
     };
 
     setNodes((nds: WorkflowNode[]) => [...nds, newNode]);
   };
 
+  const onDragOver = (event: React.DragEvent) => {
+    event.preventDefault();
+  };
+
   return (
-    <div
-      ref={wrapperRef}
-      style={{ flex: 1, height: "100vh" }}
-    >
+    <div ref={wrapperRef} style={{ flex: 1, height: "100vh" }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
         onInit={setReactFlowInstance}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
+        onConnect={(params: Connection) =>
+          setEdges((eds: WorkflowEdge[]) => addEdge(params, eds))
+        }
         onDrop={onDrop}
         onDragOver={onDragOver}
-        onNodeClick={(_, node) => setSelectedNode(node)}
+        onNodeClick={(_, node) => setSelectedNodeId(node.id)}
         fitView
       >
         <Background />
