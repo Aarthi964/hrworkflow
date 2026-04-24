@@ -1,30 +1,22 @@
 import { useState } from "react";
-import { v4 as uuid } from "uuid";
-import type { WorkflowNode, WorkflowEdge } from "../types/workflow";
+import {
+  useNodesState,
+  useEdgesState,
+} from "reactflow";
 
 export const useWorkflow = () => {
-  const [nodes, setNodes] = useState<WorkflowNode[]>([]);
-  const [edges, setEdges] = useState<WorkflowEdge[]>([]);
-  const [selectedNode, setSelectedNode] = useState<WorkflowNode | null>(null);
-
-  const addNode = (type: string, position: { x: number; y: number }) => {
-    const newNode: WorkflowNode = {
-      id: uuid(),
-      type,
-      position,
-      data: { label: `${type} node` },
-    };
-
-    setNodes((nds) => [...nds, newNode]);
-  };
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [selectedNode, setSelectedNode] = useState(null);
 
   return {
     nodes,
     edges,
     setNodes,
     setEdges,
+    onNodesChange,
+    onEdgesChange,
     selectedNode,
     setSelectedNode,
-    addNode,
   };
 };

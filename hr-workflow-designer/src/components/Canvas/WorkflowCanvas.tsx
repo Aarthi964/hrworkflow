@@ -1,71 +1,79 @@
-import React, { useCallback, useRef } from "react";
+import React, { useRef, useCallback } from "react";
 import ReactFlow, {
   addEdge,
   Background,
-  Controls,
-  useNodesState,
-  useEdgesState,
+  Controls
 } from "reactflow";
-import type {Connection,
-    ReactFlowInstance,
-  } from "reactflow";
 import "reactflow/dist/style.css";
+import type {Connection,
+  ReactFlowInstance,} from "reactflow";
+import type { WorkflowNode, WorkflowEdge } from "../../types/workflow";
 
 interface Props {
-  setSelectedNode: (node: any) => void;
+  nodes: WorkflowNode[];
+  edges: WorkflowEdge[];
+  onNodesChange: any;
+  onEdgesChange: any;
+  setNodes: any;
+  setEdges: any;
+  setSelectedNode: (node: WorkflowNode) => void;
 }
 
-const WorkflowCanvas = ({ setSelectedNode }: Props) => {
+const WorkflowCanvas = ({
+  nodes,
+  edges,
+  onNodesChange,
+  onEdgesChange,
+  setNodes,
+  setEdges,
+  setSelectedNode,
+}: Props) => {
 
-  const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] =
     React.useState<ReactFlowInstance | null>(null);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-
-  // Connect edges
+  // connect edges
   const onConnect = useCallback(
     (params: Connection) =>
-      setEdges((eds) => addEdge(params, eds)),
+      setEdges((eds: WorkflowEdge[]) => addEdge(params, eds)),
     []
   );
 
-  // Allow drop
+  // allow drop
   const onDragOver = (event: React.DragEvent) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
   };
 
-  // Handle drop (THIS IS THE MAGIC 🔥)
+  // DROP LOGIC (IMPORTANT 🔥)
   const onDrop = (event: React.DragEvent) => {
     event.preventDefault();
 
-    if (!reactFlowInstance || !reactFlowWrapper.current) return;
+    if (!reactFlowInstance || !wrapperRef.current) return;
 
     const type = event.dataTransfer.getData("application/reactflow");
 
-    // Get position relative to canvas
-    const bounds = reactFlowWrapper.current.getBoundingClientRect();
+    const bounds = wrapperRef.current.getBoundingClientRect();
 
     const position = reactFlowInstance.project({
       x: event.clientX - bounds.left,
       y: event.clientY - bounds.top,
     });
 
-    const newNode = {
+    const newNode: WorkflowNode = {
       id: `${Date.now()}`,
       type,
       position,
-      data: { label: `${type} node` },
+      data: { label: `${type}` },
     };
 
-    setNodes((nds) => [...nds, newNode]);
+    setNodes((nds: WorkflowNode[]) => [...nds, newNode]);
   };
 
   return (
     <div
-      ref={reactFlowWrapper}
+      ref={wrapperRef}
       style={{ flex: 1, height: "100vh" }}
     >
       <ReactFlow
