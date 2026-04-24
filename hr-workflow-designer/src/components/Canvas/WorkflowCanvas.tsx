@@ -7,7 +7,16 @@ import ReactFlow, {
 import type { Connection, ReactFlowInstance } from "reactflow";
 import type { WorkflowNode, WorkflowEdge } from "../../types/workflow";
 
-import "reactflow/dist/style.css"; // ✅ IMPORTANT
+import "reactflow/dist/style.css";
+import CustomNode from "./nodes/CustomNode";
+
+const nodeTypes = {
+  start: CustomNode,
+  task: CustomNode,
+  approval: CustomNode,
+  automation: CustomNode,
+  end: CustomNode,
+};
 
 interface Props {
   nodes: WorkflowNode[];
@@ -71,6 +80,7 @@ const WorkflowCanvas = ({
     <div ref={wrapperRef} style={{ flex: 1, height: "100vh" }}>
       <ReactFlow
         nodes={nodes}
+        nodeTypes={nodeTypes}
         edges={edges}
         onInit={setReactFlowInstance}
         onNodesChange={onNodesChange}
@@ -81,6 +91,9 @@ const WorkflowCanvas = ({
         onDrop={onDrop}
         onDragOver={onDragOver}
         onNodeClick={(_, node) => setSelectedNodeId(node.id)}
+        defaultEdgeOptions={{
+          style: { stroke: "#222", strokeWidth: 2 },
+        }}
         fitView
       >
         <Background />
